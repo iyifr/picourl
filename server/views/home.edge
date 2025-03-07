@@ -36,7 +36,59 @@
 	</style>
 </head>
 <body>
-  <h1>
+ 
+
+  @if(url)
+  <div class="result-container"> 
+    <p class="short-url">Your short url is: <a href="{{url}}" target="_blank" class="url-link">{{url}}</a></p>
+    <button id="copyButton" onclick="copyToClipboard('{{url}}')">Copy URL</button>
+  </div>
+  <style>
+    .result-container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .short-url {
+      font-family: monospace;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+    .url-link {
+      font-family: monospace;
+      font-weight: bold;
+      color: #007bff;
+      word-break: break-all;
+      text-decoration: none;
+    }
+    .url-link:hover {
+      text-decoration: underline;
+    }
+    #copyButton {
+      font-family: monospace;
+      font-weight: bold;
+    }
+  </style>
+    <script>
+      function copyToClipboard(text) {
+        navigator.clipboard.writeText(text)
+          .then(() => {
+            document.getElementById('copyButton').textContent = 'Copied!';
+            setTimeout(() => {
+              document.getElementById('copyButton').textContent = 'Copy URL';
+            }, 2000);
+          })
+          .catch(err => {
+            console.error('Failed to copy: ', err);
+          });
+      }
+    </script>
+
+  @else
+ <h1>
     URL Shortener
   </h1>
   <form action="/" method="GET">
@@ -44,25 +96,33 @@
     <button type="submit">Shorten URL</button>
     <div id="error" class="error"></div>
   </form>
-
-  @if(url) 
-    <p>Your url is {{url}}</p>
-  @end
+@end
+  
   <script>
     function validateForm() {
       var url = document.getElementById('url').value;
       var errorDiv = document.getElementById('error');
+      
       if (!url) {
         errorDiv.innerHTML = 'URL is required.';
         return false;
-      } else if (!/^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w.-](?:\/[\w.-]*)*$/i.test(url)) {
-        errorDiv.innerHTML = 'Invalid URL format.';
-        return false;
-      } else {
+      }
+      
+      // Add http:// prefix if not present to make URL constructor work properly
+      if (!/^https?:\/\//i.test(url)) {
+        url = 'http://' + url;
+      }
+      
+      try {
+        new URL(url);
         errorDiv.innerHTML = '';
         return true;
+      } catch (e) {
+        errorDiv.innerHTML = 'Invalid URL format.';
+        return false;
       }
     }
+
     document.querySelector('form').addEventListener('submit', function(event) {
       if (!validateForm()) {
         event.preventDefault();
