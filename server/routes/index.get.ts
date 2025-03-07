@@ -3,9 +3,9 @@ import { edge, keyStorage } from '~/plugins/plugs'
 
 export default eventHandler(async (event) => {
 	let url = getQuery(event).url as string | null
-
 	if (url) {
-		const hashkey = useHash().update(url).digest('hex').slice(0, 6)
+		// Generate hash for the URL
+		const hashkey = useHash().update(url).digest()
 		await keyStorage.setItem(hashkey, url)
 		const requestUrl = getRequestURL(event)
 		url = `${requestUrl.origin}/${hashkey}`

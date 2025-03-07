@@ -23,18 +23,18 @@ export default defineNitroPlugin(async (nitroApp) => {
 		const { signal } = ac
 		const watcher = watch(sourceViewsDir, { recursive: true, signal })
 
-		// Handle file changes
-		;(async () => {
-			try {
-				for await (const event of watcher) {
-					// Sync the entire directory on any change
-					await cp(sourceViewsDir, targetViewsDir, { recursive: true, force: true })
-					console.log(`Views synced after change in ${event.filename}`)
+			// Handle file changes
+			; (async () => {
+				try {
+					for await (const event of watcher) {
+						// Sync the entire directory on any change
+						await cp(sourceViewsDir, targetViewsDir, { recursive: true, force: true })
+						console.log(`Views synced after change in ${event.filename}`)
+					}
+				} catch (err) {
+					console.error('Error watching views directory:', err)
 				}
-			} catch (err) {
-				console.error('Error watching views directory:', err)
-			}
-		})()
+			})()
 
 		// Cleanup watcher on app close
 		nitroApp.hooks.hook('close', () => {
@@ -46,8 +46,6 @@ export default defineNitroPlugin(async (nitroApp) => {
 
 	const unwatch = await keyStorage.watch(async (event, key) => {
 		console.log(event, key)
-		const keys = await keyStorage.keys()
-		console.log(keys)
 	})
 	// Copy views directory
 	await cp(sourceViewsDir, targetViewsDir, { recursive: true, force: true })

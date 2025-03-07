@@ -7,7 +7,7 @@ export default eventHandler(async (event) => {
 
 	if (hasKey) {
 		const url = (await keyStorage.getItem(key)) as string
-		return sendRedirect(event, url).then(() => keyStorage.remove(key))
+		return sendRedirect(event, url)
 	} else {
 		const html = await edge.render('notfound')
 		return html
